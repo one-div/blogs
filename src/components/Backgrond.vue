@@ -2,59 +2,47 @@
   <div>
     <div id="lovesBgc"></div>
     <!-- 点击biubiubiu小心心  start-->
-    <div
-      v-for="(item, index) in loves"
-      v-bind:key="index"
-      v-bind:ref="loves[index].count"
-      class="img"
-      v-bind:style="item.top + item.left + item.scale + item.opacity"
-    >
-      <div class="left" v-bind:style="item.childBgc"></div>
-      <div class="right" v-bind:style="item.childBgc"></div>
-      <div class="under" v-bind:style="item.childBgc"></div>
+    <div v-for="(item, index) in loves" :key="index" :ref="loves[index].count" class="img"
+      :style="item.top + item.left + item.scale + item.opacity">
+      <div class="left" :style="item.childBgc"></div>
+      <div class="right" :style="item.childBgc"></div>
+      <div class="under" :style="item.childBgc"></div>
       <div class="text">{{ text[loves[index].textIndex] }}</div>
     </div>
     <!-- 点击biubiubiu小心心  stop-->
-
     <!-- 上升气泡   start-->
     <div class="bubbels">
-      <div
-        v-for="(item, index) in bubbles"
-        v-bind:key="index"
-        class="bubble"
-        v-bind:style="
-          item.color +
-          item.width +
-          item.height +
-          item.left +
-          item.delay +
-          item.duration
-        "
-      ></div>
+      <div v-for="(item, index) in bubbles" :key="index" class="bubble" :style="item.color +
+        item.width +
+        item.height +
+        item.left +
+        item.delay +
+        item.duration
+        "></div>
     </div>
     <!-- 上升气泡   stop-->
   </div>
 </template>
 
 <script>
+const text = [
+  "富强",
+  "民主",
+  "文明",
+  "和谐",
+  "自由",
+  "平等",
+  "公正",
+  "法治",
+  "爱国",
+  "敬业",
+  "诚信",
+  "友善",
+];
+const loves = [];
+const bubbles = [];
 export default {
   data() {
-    const text = [
-      "富强",
-      "民主",
-      "文明",
-      "和谐",
-      "自由",
-      "平等",
-      "公正",
-      "法治",
-      "爱国",
-      "敬业",
-      "诚信",
-      "友善",
-    ];
-    const loves = [];
-    const bubbles = [];
     // count:1,top:'200px',left:'200px',translateY:'-40px',transform:0.5,opacity:0.5
     return {
       text: text, //小心心上边显示的文字
@@ -62,9 +50,19 @@ export default {
       loves: loves, //小心心样式
       count: 0, //创建元素个数
       bubbles: bubbles,
+      scrollTop:0,
     };
   },
+  mounted() {
+    window.addEventListener('scroll', this.handleScroll, true)
+  },
   methods: {
+    handleScroll() {
+      this.$nextTick(() => {
+        var top =Math.floor(document.body.scrollTop || document.documentElement.scrollTop || window.pageYOffset)
+        this.scrollTop=top;
+      })
+    },
     // 创建小心心
     createLoves(event) {
       let x = 0;
@@ -79,16 +77,16 @@ export default {
         parseInt(Math.random() * 255) +
         ");";
       index = Math.floor(Math.random() * this.text.length);
-      console.log(this.text[index]);
+      // console.log(this.text[index]);
       // alert(this.$el);
       x = event.clientX - 10;
       y = event.clientY - 17;
       // alert(event.clientX);
-
-      console.log("x:" + x + " y:" + y + " color:" + color);
+      let x_top = document.getElementById('login').offsetTop
+      // console.log("x:" + x + " y:" + y, "x_top:" + x_top);
       let style = {
         count: "img" + ++this.count, //
-        top: "top:" + y + "px;",
+        top: "top:" + (y+this.scrollTop) + "px;",
         left: "left:" + x + "px;",
         opacity: "opacity:" + 0.5 + ";",
         childBgc: color,
@@ -119,9 +117,9 @@ export default {
         parseInt(Math.random() * 255) +
         ")";
       let bubble = {};
-      console.log(left);
+      // console.log(left);
       for (var i = 0; i < 11; i++) {
-        console.log(wh[i]);
+        // console.log(wh[i]);
         bubble = {
           left: "left:" + Math.floor(Math.random() * 80 + 10) + "%;",
           width: "width:" + wh[i] + "px;",
@@ -130,7 +128,7 @@ export default {
           delay: "animation-delay:" + delay[i] + "s;",
           duration: "animation-duration:" + duration[i] + "s;",
         };
-        console.log("bubble" + bubble.color);
+        // console.log("bubble" + bubble.color);
         this.bubbles.push(bubble);
         //使用随机生成位置，但是显然具有不可控性
         // wh = Math.floor((Math.random()) * 65 + 15);
@@ -146,7 +144,7 @@ export default {
           parseInt(Math.random() * 255) +
           ")";
         // this.sleep(1000);
-        console.log(i + "size:" + this.bubbles.length);
+        // console.log(i + "size:" + this.bubbles.length);
       }
     },
     updateBubble() {
@@ -182,6 +180,7 @@ export default {
   left: 0;
   z-index: -1;
 }
+
 /* biubiubiu小心心 start */
 .img {
   width: 20px;
@@ -192,6 +191,7 @@ export default {
   transition: 2.5s;
   float: left;
 }
+
 .left,
 .right {
   width: 10px;
@@ -199,9 +199,11 @@ export default {
   border-radius: 100%;
   position: absolute;
 }
+
 .right {
   right: 0;
 }
+
 .under {
   width: 10px;
   height: 10px;
@@ -210,6 +212,7 @@ export default {
   left: 5px;
   transform: rotate(45deg);
 }
+
 .text {
   width: 50px;
   font-size: 10px;
@@ -236,43 +239,54 @@ export default {
   z-index: 999;
   animation: flying 10s infinite ease-in;
 }
+
 .bubble:nth-child(odd) {
   animation: flyingOdd 10s infinite ease-in;
 }
+
 .bubble:nth-child(even) {
   animation: flyingEven 10s infinite ease-in;
 }
+
 @keyframes flyingEven {
   0% {
     bottom: 0px;
     transform: translateX(0);
   }
+
   25% {
     transform: translateX(-200px);
   }
+
   50% {
     transform: translateX(0);
   }
+
   100% {
     bottom: 1080px;
     /* transform: rotateX(0); */
     transform: translateX(150px);
   }
 }
+
 @keyframes flyingOdd {
   0% {
     bottom: 0px;
     transform: translateX(0);
   }
+
   25% {
     transform: translateX(50px);
   }
+
   50% {
     transform: translateX(-50px);
   }
+
   75% {
     transform: translateX(-80px);
   }
+
   100% {
     bottom: 1080px;
     /* transform: rotateX(0); */
